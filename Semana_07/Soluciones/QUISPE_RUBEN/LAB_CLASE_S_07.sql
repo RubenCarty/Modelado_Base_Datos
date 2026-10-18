@@ -1,0 +1,100 @@
+--CREATE DATABASE MBD_S07;
+
+--use MBD_S07
+--Solucion paso 1: entidades fuertes  yrelacion 1:N
+CREATE TABLE PROFESOR (
+dni CHAR(8) NOT NULL,
+nombres NVARCHAR(60) NOT NULL,
+apellidos NVARCHAR(60) NOT NULL,
+CONSTRAINT PK_PROFESOR PRIMARY KEY (dni)
+);
+
+CREATE TABLE PROFESOR_TELEFONO (
+dni CHAR(8) NOT NULL,
+telefono VARCHAR(15) NOT NULL,
+CONSTRAINT PK_PROFESOR_TELEFONO PRIMARY KEY (dni,telefono),
+CONSTRAINT FK_PROFESOR_TELEFONO FOREIGN KEY (dni) REFERENCES PROFESOR (dni)
+);
+--==================================
+CREATE TABLE ALUMNO (
+codigoAlumno VARCHAR(10) NOT NULL,
+nombres NVARCHAR(60) NOT NULL,
+apellidos NVARCHAR(60) NOT NULL,
+CONSTRAINT PK_ALUMNO PRIMARY KEY (codigoAlumno)
+);
+--===================================
+CREATE TABLE INSTRUMENTO (
+idInstrumento VARCHAR(10) NOT NULL,
+nombreInstrumento NVARCHAR(40) NOT NULL,
+marca NVARCHAR(30) NOT NULL,
+CONSTRAINT PK_INSTRUMENTO PRIMARY KEY (idInstrumento)
+);
+--==========================
+CREATE TABLE CURSO (
+idCurso VARCHAR(10) NOT NULL,
+nombreCurso NVARCHAR(50) NOT NULL,
+instrumento NVARCHAR(30) NOT NULL,
+dni CHAR(8) NOT NULL,
+CONSTRAINT PK_CURSO PRIMARY KEY (idCurso),
+CONSTRAINT FK_CURSO_PROFESOR FOREIGN KEY (dni) REFERENCES PROFESOR (dni)
+);
+
+--============================  solucion paso II ENTIDAD DEBIL REALCION n:m
+
+CREATE TABLE EVALUACION (
+codigoAlumno VARCHAR(10) NOT NULL,
+numeroEvaluacion INT NOT NULL,
+idCurso VARCHAR(10) NOT NULL,
+fecha DATE NOT NULL,
+nota DECIMAL(2,2) NOT NULL,
+CONSTRAINT PK_EVALUACION PRIMARY KEY (codigoAlumno, numeroEvaluacion),
+CONSTRAINT FK_EVALUACION_ALUMNO FOREIGN KEY (codigoAlumno) REFERENCES ALUMNO (codigoAlumno),
+CONSTRAINT FK_EVALUACION_CURSO FOREIGN KEY (idCurso) REFERENCES CURSO (idCurso)
+
+);
+--=======================
+CREATE TABLE INSCRIPCION (
+    codigoAlumno     VARCHAR(10)  NOT NULL,
+    idCurso          VARCHAR(10)  NOT NULL,
+    fechaInscripcion DATE         NOT NULL,
+    horario          NVARCHAR(20) NOT NULL,
+    CONSTRAINT PK_INSCRIPCION         PRIMARY KEY (codigoAlumno, idCurso, fechaInscripcion),
+    CONSTRAINT FK_INSCRIPCION_ALUMNO  FOREIGN KEY (codigoAlumno) REFERENCES ALUMNO (codigoAlumno),
+    CONSTRAINT FK_INSCRIPCION_CURSO   FOREIGN KEY (idCurso)      REFERENCES CURSO (idCurso)
+);
+
+
+INFORMATION_SCHEMA.'KEY_COLUMN_USAGE'
+
+--===== SOLUCION PASO 3 
+-- CONTRATO: 1:1 con PROFESOR, participación total del lado de CONTRATO -> FK aquí
+CREATE TABLE CONTRATO (
+    dni             CHAR(8)      NOT NULL,
+    numeroContrato  VARCHAR(15)  NOT NULL,
+    fechaInicio     DATE         NOT NULL,
+    sueldo          DECIMAL(8,2) NOT NULL,
+    CONSTRAINT PK_CONTRATO          PRIMARY KEY (dni),
+    CONSTRAINT FK_CONTRATO_PROFESOR FOREIGN KEY (dni) REFERENCES PROFESOR (dni),
+    CONSTRAINT UQ_CONTRATO_NUMERO   UNIQUE (numeroContrato)
+);
+
+-- Especialización disjunta y total de INSTRUMENTO
+ALTER TABLE INSTRUMENTO ADD tipoInstrumento VARCHAR(12) NOT NULL
+    CONSTRAINT DF_INSTRUMENTO_TIPO DEFAULT ('CUERDA')
+    CONSTRAINT CK_INSTRUMENTO_TIPO CHECK (tipoInstrumento IN ('CUERDA','PERCUSION'));
+
+CREATE TABLE CUERDA (
+    idInstrumento VARCHAR(10)  NOT NULL,
+    numeroCuerdas INT          NOT NULL,
+    tipoMaterial  NVARCHAR(30) NOT NULL,
+    CONSTRAINT PK_CUERDA          PRIMARY KEY (idInstrumento),
+    CONSTRAINT FK_CUERDA_INSTRUMENTO FOREIGN KEY (idInstrumento) REFERENCES INSTRUMENTO (idInstrumento)
+);
+
+CREATE TABLE PERCUSION (
+    idInstrumento VARCHAR(10)  NOT NULL,
+    numeroPiezas  INT          NOT NULL,
+    tipoBaqueta   NVARCHAR(30) NOT NULL,
+    CONSTRAINT PK_PERCUSION          PRIMARY KEY (idInstrumento),
+    CONSTRAINT FK_PERCUSION_INSTRUMENTO FOREIGN KEY (idInstrumento) REFERENCES INSTRUMENTO (idInstrumento)
+);
