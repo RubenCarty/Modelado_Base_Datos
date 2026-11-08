@@ -1,0 +1,15 @@
+--alterar la tablas
+
+--cambio 1
+ALTER TABLE ecommerce.CLIENTE
+ADD fechaNacimiento DATE NULL;
+
+--CAMBIO 2
+ALTER TABLE ecommerce.CLIENTE
+ALTER COLUMN telefono VARCHAR(30) NULL;
+
+--CAMBIO 3
+ALTER TABLE ecommerce.CLIENTE
+ADD CONSTRAINT CK_CLIENTE_FECHANACIMIENTO
+CHECK (CLIENTE.fechaNacimiento IS NULL OR  CLIENTE.fechaNacimiento <=GETDATE());
+
