@@ -16,7 +16,7 @@ GO
 CREATE DATABASE EcommerceBD;
 GO
 
--- A partir de aquí, todo el script se ejecuta dentro de EcommerceBD.
+-- A partir de aquí todo el script se ejecuta dentro de EcommerceBD.
 USE EcommerceBD;
 GO
 
